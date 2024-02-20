@@ -578,6 +578,28 @@ void Cmd_CenterView_f( const idCmdArgs &args ) {
 
 /*
 ==================
+Cmd_Locate_f
+
+Print the player location to the screen
+==================
+*/
+void Cmd_Locate_f(const idCmdArgs& args) {
+	idPlayer* player;
+	idVec3 origin;
+
+	player = gameLocal.GetLocalPlayer();
+	if (!player) {
+		// log an error message here
+		return;
+	}
+
+	origin = player->GetEyePosition();
+
+	gameLocal.Printf("Location: (%f, %f, %f)\n", origin.x, origin.y, origin.z);
+}
+
+/*
+==================
 Cmd_God_f
 
 Sets client to godmode
@@ -3232,6 +3254,7 @@ void idGameLocal::InitConsoleCommands( void ) {
 	cmdSystem->AddCommand( "buyMenu",				Cmd_ToggleBuyMenu_f,		CMD_FL_GAME,				"Toggle buy menu (if in a buy zone and the game type supports it)" );
 	cmdSystem->AddCommand( "buy",					Cmd_BuyItem_f,				CMD_FL_GAME,				"Buy an item (if in a buy zone and the game type supports it)" );
 // RITUAL END
+	cmdSystem->AddCommand("locate", Cmd_Locate_f, CMD_FL_GAME, "Print the player location to the screen");
 
 }
 
