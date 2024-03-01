@@ -12,8 +12,8 @@ const int NAILGUN_DRUMSPEED_SLOW		= 1;
 const int NAILGUN_DRUMSPEED_FAST		= 2;
 
 // Spinup and spindown times
-const int NAILGUN_SPINDOWN_TIME			= 1000;
-const int NAILGUN_SPINUP_TIME			= 1000;
+const int NAILGUN_SPINDOWN_TIME			= 667;
+const int NAILGUN_SPINUP_TIME			= 1250;
 
 // Nailgun shader parms
 const int NAILGUN_SPARM_PLAYLEADIN		= 7;
@@ -670,7 +670,7 @@ stateResult_t rvWeaponNailgun::State_Fire( const stateParms_t& parms ) {
 				Attack ( true, 1, spread, 0.0f, 1.0f );
 				nextAttackTime = gameLocal.time + (altFireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
 			} else {
-				Attack ( false, 1, spread, 0.0f, 1.0f );
+				Attack ( false, 1, spread, 0.0f, 0.8f );
 				nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
 			}
 			

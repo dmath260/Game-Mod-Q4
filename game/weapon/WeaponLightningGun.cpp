@@ -318,7 +318,7 @@ void rvWeaponLightningGun::Think ( void ) {
 		
 		nextAttackTime = gameLocal.time + (fireRate * owner->PowerUpModifier ( PMOD_FIRERATE ));
 		Attack ( currentPath.target, dir, power );
-		for ( i = 0; i < chainLightning.Num(); i ++, power *= 0.75f ) {
+		for ( i = 0; i < chainLightning.Num(); i ++, power *= 1.5f ) {
 			Attack ( chainLightning[i].target, chainLightning[i].normal, power );
 		}
 
