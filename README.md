@@ -1,7 +1,7 @@
 Tactical Strogg Takedown
 
 
-A new mod for Quake 4 that focuses more on exploration, inventory management, and puzzle solving than pure combat.
+A new mod for Quake 4 that focuses more on exploration, inventory management, and puzzle solving than pure combat. This mod adds new weapons, new powerups, a new dialog system (unfinished), and a new quest system (also unfinished).
 
 
 How to play:
