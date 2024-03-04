@@ -2569,7 +2569,7 @@ void rvWeapon::Attack( bool altAttack, int num_attacks, float spread, float fuse
 	MuzzleFlash();
 
 	// quad damage overlays a sound
-	if ( owner->PowerUpActive( POWERUP_QUADDAMAGE ) ) {
+	if ( owner->PowerUpActive( POWERUP_QUADDAMAGE ) || owner->PowerUpActive( POWERUP_ONESHOT ) ) {
 		viewModel->StartSound( "snd_quaddamage", SND_CHANNEL_VOICE, 0, false, NULL );
 	}
 
@@ -2600,7 +2600,9 @@ void rvWeapon::Attack( bool altAttack, int num_attacks, float spread, float fuse
 		}
 		//asalmon:  changed to keep stats even in single player 
 		statManager->WeaponFired( owner, weaponIndex, num_attacks );
-		
+		if ( owner->PowerUpActive( POWERUP_ONESHOT ) ) {
+			owner->ClearPowerup( POWERUP_ONESHOT );
+		}
 	}
 }
 

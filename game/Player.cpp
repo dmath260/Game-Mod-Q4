@@ -907,8 +907,18 @@ bool idInventory::Give( idPlayer *owner, const idDict &spawnArgs, const char *st
 		GivePowerUp( owner, POWERUP_REGENERATION, SEC2MS( atof( value ) ) );
 	} else if ( !idStr::Icmp( statname, "haste" ) && !checkOnly ) {
 		GivePowerUp( owner, POWERUP_HASTE, SEC2MS( atof( value ) ) );
-	} else if( !idStr::Icmp( statname, "ammoregen" ) && !checkOnly ) {
+	} else if ( !idStr::Icmp( statname, "ammoregen" ) && !checkOnly ) {
 		GivePowerUp( owner, POWERUP_AMMOREGEN, -1 );
+	} else if ( !idStr::Icmp( statname, "oneshot" ) && !checkOnly ) {
+		GivePowerUp(owner, POWERUP_ONESHOT, SEC2MS( atof ( value ) ) );
+	} else if ( !idStr::Icmp( statname, "star" ) && !checkOnly ) {
+		GivePowerUp(owner, POWERUP_SUPERSTAR, SEC2MS( atof( value ) ) );
+	} else if ( !idStr::Icmp( statname, "hpboost" ) && !checkOnly ) {
+		GivePowerUp(owner, POWERUP_HEALTHBOOST, SEC2MS( atof( value ) ) );
+	} else if ( !idStr::Icmp( statname, "metal" ) && !checkOnly ) {
+		GivePowerUp(owner, POWERUP_METAL, SEC2MS( atof( value ) ) );
+	} else if ( !idStr::Icmp( statname, "endure" ) && !checkOnly ) {
+		GivePowerUp(owner, POWERUP_ANIMEPLOTARMOR, SEC2MS( atof( value ) ) );
 	} else if ( !idStr::Icmp( statname, "weapon" ) ) {
 		bool tookWeapon = false;
  		for( pos = value; pos != NULL; pos = end ) {
@@ -4310,6 +4320,56 @@ float idPlayer::PowerUpModifier( int type ) {
 		}
 	}
 
+	if ( PowerUpActive( POWERUP_ONESHOT ) ) {
+		switch (type) {
+			case PMOD_PROJECTILE_DAMAGE: {
+				mod *= 10000.0f;
+				break;
+			}
+			case PMOD_MELEE_DAMAGE: {
+				mod *= 10000.0f;
+				break;
+			}
+			case PMOD_PROJECTILE_DEATHPUSH: {
+				mod *= 10000.0f;
+				break;
+			}
+		}
+	}
+
+	if ( PowerUpActive( POWERUP_SUPERSTAR ) ) {
+		switch (type) {
+			case PMOD_PROJECTILE_DAMAGE: {
+				mod *= 1.5f;
+				break;
+			}
+			case PMOD_MELEE_DAMAGE: {
+				mod *= 1.5f;
+				break;
+			}
+			case PMOD_PROJECTILE_DEATHPUSH: {
+				mod *= 1.5f;
+				break;
+			}
+			case PMOD_SPEED: {
+				mod *= 1.5f;
+				break;
+			}
+			case PMOD_FIRERATE: {
+				mod /= 1.5f;
+				break;
+			}
+		}
+	}
+
+	if ( PowerUpActive( POWERUP_METAL ) ) {
+		switch ( type ) {
+			case PMOD_SPEED:	
+				mod *= 0.5f;
+				break;
+		}
+	}
+
 	// Arena CTF powerups
 	if( PowerUpActive( POWERUP_AMMOREGEN ) ) {
 		switch( type ) {
@@ -4421,6 +4481,21 @@ void idPlayer::StartPowerUpEffect( int powerup ) {
 			break;
 		}
 
+		case POWERUP_ONESHOT: {
+			powerUpOverlay = quadOverlay;
+
+			StopEffect("fx_regeneration");
+			PlayEffect("fx_quaddamage", animator.GetJointHandle("chest"), true);
+			StartSound("snd_quaddamage_idle", SND_CHANNEL_POWERUP_IDLE, 0, false, NULL);
+
+			// Spawn quad effect
+			powerupEffect = gameLocal.GetEffect(spawnArgs, "fx_quaddamage_crawl");
+			powerupEffectTime = gameLocal.time;
+			powerupEffectType = POWERUP_QUADDAMAGE;
+
+			break;
+		}
+
 		case POWERUP_REGENERATION: {
 
 			// when buy mode is enabled, we use the guard effect for team powerup regen ( more readable than everyone going red )
@@ -4449,10 +4524,73 @@ void idPlayer::StartPowerUpEffect( int powerup ) {
 			break;
 		}
 
+		case POWERUP_HEALTHBOOST: {
+			powerUpOverlay = quadOverlay;
+
+			StopEffect("fx_regeneration");
+			PlayEffect("fx_quaddamage", animator.GetJointHandle("chest"), true);
+
+			// Spawn quad effect
+			powerupEffect = gameLocal.GetEffect(spawnArgs, "fx_quaddamage_crawl");
+			powerupEffectTime = gameLocal.time;
+			powerupEffectType = POWERUP_QUADDAMAGE;
+				
+			inventory.maxHealth = 200;
+			health = inventory.maxHealth;
+
+			break;
+		}
+
+		case POWERUP_METAL: {
+			powerUpOverlay = quadOverlay;
+
+			StopEffect("fx_regeneration");
+			PlayEffect("fx_quaddamage", animator.GetJointHandle("chest"), true);
+
+			// Spawn quad effect
+			powerupEffect = gameLocal.GetEffect(spawnArgs, "fx_quaddamage_crawl");
+			powerupEffectTime = gameLocal.time;
+			powerupEffectType = POWERUP_QUADDAMAGE;
+				
+			inventory.maxarmor = 300;
+			inventory.armor = inventory.maxarmor;
+
+			break;
+		}
+
+		case POWERUP_ANIMEPLOTARMOR: {
+			powerUpOverlay = quadOverlay;
+
+			StopEffect("fx_regeneration");
+			PlayEffect("fx_quaddamage", animator.GetJointHandle("chest"), true);
+
+			// Spawn quad effect
+			powerupEffect = gameLocal.GetEffect(spawnArgs, "fx_quaddamage_crawl");
+			powerupEffectTime = gameLocal.time;
+			powerupEffectType = POWERUP_QUADDAMAGE;
+
+			undying = true;
+			break;
+		}
+
 		case POWERUP_HASTE: {
 			powerUpOverlay = hasteOverlay;
 
 			hasteEffect = PlayEffect( "fx_haste", GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), true );
+			break;
+		}
+
+		case POWERUP_SUPERSTAR: {
+			powerUpOverlay = hasteOverlay;
+
+			hasteEffect = PlayEffect("fx_haste", GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), true);
+
+			// Spawn quad effect
+			powerupEffect = gameLocal.GetEffect(spawnArgs, "fx_quaddamage_crawl");
+			powerupEffectTime = gameLocal.time;
+			powerupEffectType = POWERUP_QUADDAMAGE;
+
+			godmode = true;
 			break;
 		}
 		
@@ -4536,7 +4674,12 @@ void idPlayer::StopPowerUpEffect( int powerup ) {
 		(inventory.powerups & ( 1 << POWERUP_QUADDAMAGE ) ) || 
 		(inventory.powerups & ( 1 << POWERUP_REGENERATION ) ) || 
 		(inventory.powerups & ( 1 << POWERUP_HASTE ) ) || 
-		(inventory.powerups & ( 1 << POWERUP_INVISIBILITY ) ) 
+		(inventory.powerups & ( 1 << POWERUP_INVISIBILITY ) ) || 
+		(inventory.powerups & ( 1 << POWERUP_ONESHOT ) ) ||
+		(inventory.powerups & ( 1 << POWERUP_SUPERSTAR ) ) ||
+		(inventory.powerups & ( 1 << POWERUP_HEALTHBOOST ) ) ||
+		(inventory.powerups & ( 1 << POWERUP_METAL ) ) ||
+		(inventory.powerups & ( 1 << POWERUP_ANIMEPLOTARMOR ) )
 		) )	{
 
 			powerUpOverlay = NULL;
@@ -4552,6 +4695,14 @@ void idPlayer::StopPowerUpEffect( int powerup ) {
 			StopEffect( "fx_quaddamage" );
 			break;
 		}
+		case POWERUP_ONESHOT: {
+			powerupEffect = NULL;
+			powerupEffectTime = 0;
+			powerupEffectType = 0;
+
+			StopEffect("fx_quaddamage");
+			break;
+		}
 		case POWERUP_REGENERATION: {
 			if ( gameLocal.IsTeamPowerups() ) {
 				teamHealthRegenPending = false;
@@ -4565,9 +4716,47 @@ void idPlayer::StopPowerUpEffect( int powerup ) {
 			}
 			break;
 		}
-		case POWERUP_HASTE: {
-			StopEffect( "fx_haste" );
+		case POWERUP_HEALTHBOOST: {
+			powerupEffect = NULL;
+			powerupEffectTime = 0;
+			powerupEffectType = 0;
+
+			StopEffect("fx_quaddamage");
 			break;
+		}
+		case POWERUP_METAL: {
+			powerupEffect = NULL;
+			powerupEffectTime = 0;
+			powerupEffectType = 0;
+
+			StopEffect("fx_quaddamage");
+			break;
+		}
+		case POWERUP_ANIMEPLOTARMOR: {
+			powerupEffect = NULL;
+			powerupEffectTime = 0;
+			powerupEffectType = 0;
+
+			StopEffect("fx_quaddamage");
+			break;
+		}
+		case POWERUP_HASTE: {
+			StopEffect("fx_haste");
+			break;
+		}
+		case POWERUP_SUPERSTAR: {
+			powerupEffect = NULL;
+			powerupEffectTime = 0;
+			powerupEffectType = 0;
+
+			StopEffect("fx_quaddamage");			
+			StopEffect( "fx_haste" );
+
+			idPlayer* player;
+			player = gameLocal.GetLocalPlayer();
+			if (player->godmode) {
+				player->godmode = false;
+			}
 		}
 		case POWERUP_INVISIBILITY: {
 			powerUpSkin = NULL;
@@ -4779,14 +4968,19 @@ void idPlayer::ClearPowerup( int i ) {
 			(inventory.powerups & ( 1 << POWERUP_QUADDAMAGE ) ) || 
 			(inventory.powerups & ( 1 << POWERUP_REGENERATION ) ) || 
 			(inventory.powerups & ( 1 << POWERUP_HASTE ) ) || 
-			(inventory.powerups & ( 1 << POWERUP_INVISIBILITY ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_INVISIBILITY ) ) || 
+			(inventory.powerups & ( 1 << POWERUP_ONESHOT ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_SUPERSTAR ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_HEALTHBOOST ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_METAL ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_ANIMEPLOTARMOR ) ) ||
 			(inventory.powerups & ( 1 << POWERUP_DEADZONE ) ) 
 		) )	{
 
 		powerUpOverlay = NULL;
 		StopSound( SND_CHANNEL_POWERUP_IDLE, false );
 	}
-	
+
 	StopPowerUpEffect( i );
 }
 
@@ -4839,13 +5033,22 @@ void idPlayer::UpdatePowerUps( void ) {
 		hud->HandleNamedEvent( "clearPowerups" );
 	}
 
-	for ( i = 0, index = 0; i < POWERUP_MAX; i++ ) {
+	for (i = 0, index = 0; i < POWERUP_MAX; i++) {
 		// Do we have this powerup?
-		if ( !(inventory.powerups & ( 1 << i ) ) ) {
+		if (!(inventory.powerups & (1 << i))) {
 			continue;
 		}
-			
-		if ( inventory.powerupEndTime[i] > gameLocal.time || inventory.powerupEndTime[i] == -1 ) {
+
+		if (i == POWERUP_HEALTHBOOST && health < inventory.maxHealth / 2) {
+			inventory.maxHealth == 100;
+			ClearPowerup(i);
+		} else if (i == POWERUP_METAL && inventory.armor == 0) {
+			inventory.maxarmor == 100;
+			ClearPowerup(i);
+		} else if (i == POWERUP_ANIMEPLOTARMOR && health == 1) {
+			undying = false;
+			ClearPowerup(i);
+		} else if (inventory.powerupEndTime[i] > gameLocal.time || inventory.powerupEndTime[i] == -1) {
 			// If there is still time remaining on the powerup then update the hud		
 			if ( hud ) {
 				// Play the wearoff sound for the powerup that is closest to wearing off
@@ -4865,9 +5068,9 @@ void idPlayer::UpdatePowerUps( void ) {
 			}
 
 			continue;
-		} else if ( inventory.powerupEndTime[ i ] != -1 && gameLocal.isServer ) {
+		} else if ( inventory.powerupEndTime[ i ] != -1 ) {
 			// This particular powerup needs to respawn in a special way.
-			if ( i == POWERUP_DEADZONE ) {
+			if (i == POWERUP_DEADZONE) {
 				gameLocal.mpGame.GetGameState()->SpawnDeadZonePowerup();
 			}
 			// Powerup time has run out so take it away from the player
@@ -9875,7 +10078,7 @@ void idPlayer::Killed( idEntity *inflictor, idEntity *attacker, int damage, cons
 				lastKiller = NULL;
 			}
 
-			if ( health < -20 || killer->PowerUpActive( POWERUP_QUADDAMAGE ) ) {
+			if ( health < -20 || killer->PowerUpActive( POWERUP_QUADDAMAGE )) {
 				gibDeath = true;
 				gibDir = dir;
 				gibsLaunched = false;
@@ -12522,7 +12725,7 @@ void idPlayer::ReadFromSnapshot( const idBitMsgDelta &msg ) {
 		}
 
 		//gib them here
-		if ( health < -20 || ( lastKiller && lastKiller->PowerUpActive( POWERUP_QUADDAMAGE )) )	{	
+		if ( health < -20 || ( lastKiller && lastKiller->PowerUpActive( POWERUP_QUADDAMAGE )))	{
 			ClientGib( lastDamageDir );
 		}		
 

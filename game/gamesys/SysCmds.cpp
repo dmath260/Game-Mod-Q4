@@ -497,6 +497,31 @@ void GiveStuffToPlayer( idPlayer* player, const char* name, const char* value )
 		return;
 	}
 
+	if (idStr::Icmp( name, "oneshot" ) == 0) {
+		player->GivePowerUp( POWERUP_ONESHOT, SEC2MS( 999.0f ) );
+		return;
+	}
+
+	if (idStr::Icmp(name, "star") == 0) {
+		player->GivePowerUp( POWERUP_SUPERSTAR, SEC2MS( 10.0f ) );
+		return;
+	}
+
+	if (idStr::Icmp(name, "hpboost") == 0) {
+		player->GivePowerUp( POWERUP_HEALTHBOOST, SEC2MS( 999.0f ) );
+		return;
+	}
+
+	if (idStr::Icmp(name, "metal") == 0) {
+		player->GivePowerUp( POWERUP_METAL, SEC2MS( 999.0f ) );
+		return;
+	}
+
+	if (idStr::Icmp(name, "endure") == 0) {
+		player->GivePowerUp( POWERUP_ANIMEPLOTARMOR, SEC2MS( 999.0f ) );
+		return;
+	}
+
 	if (idStr::Icmp(name, "ammoregen") == 0) {
 		player->GivePowerUp( POWERUP_AMMOREGEN, -1 );
 		return;
