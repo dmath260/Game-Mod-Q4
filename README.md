@@ -6,7 +6,7 @@ A new mod for Quake 4 that focuses more on exploration, inventory management, an
 
 How to play:
 
-Download "game000.pk4," "pak001.pk4," and the "Quake 4 Mod" shortcut
+Download "game000.pk4," "pak001.pk4," and the "Quake 4 Mod" shortcut from the Downloads folder
 
 Open file explorer and find the local files for Quake 4 (on Steam, this is C:\Program Files (x86)\Steam\steamapps\common\Quake 4)
 
