@@ -5040,10 +5040,10 @@ void idPlayer::UpdatePowerUps( void ) {
 		}
 
 		if (i == POWERUP_HEALTHBOOST && health < inventory.maxHealth / 2) {
-			inventory.maxHealth == 100;
+			inventory.maxHealth /= 2;
 			ClearPowerup(i);
 		} else if (i == POWERUP_METAL && inventory.armor == 0) {
-			inventory.maxarmor == 100;
+			inventory.maxarmor /= 3;
 			ClearPowerup(i);
 		} else if (i == POWERUP_ANIMEPLOTARMOR && health == 1) {
 			undying = false;

@@ -1,4 +1,3 @@
-
 #include "../../idlib/precompiled.h"
 #pragma hdrstop
 
@@ -625,6 +624,34 @@ void Cmd_Locate_f(const idCmdArgs& args) {
 
 /*
 ==================
+Cmd_Help_f
+
+Prints a help menu for mod features
+==================
+*/
+void Cmd_Help_f(const idCmdArgs& args) {
+	gameLocal.Printf("Weapons:\n");
+	gameLocal.Printf("Blaster: Weak and inaccurate, but charge it up for a strong, targeted hit\n");
+	gameLocal.Printf("Machine Gun: Fires at lightning speed to gun down enemies quickly\n");
+	gameLocal.Printf("Shotgun: Slow to reload, but packs a punch\n");
+	gameLocal.Printf("Hyper Blaster: Fires in somewhat slow, but powerful bursts\n");
+	gameLocal.Printf("Grenade Launcher: Launch powerful grenades for deadly explosions\n");
+	gameLocal.Printf("Nailgun: Takes a second to charge up, but fires off quickly and accurately\n");
+	gameLocal.Printf("Rocket Launcher: Not very accurate, but incredibly powerful when it hits\n");
+	gameLocal.Printf("Railgun: Strong, long-range attacks, but takes several seconds to fire again\n");
+	gameLocal.Printf("Lightning Gun: Constant, powerful shocks to wear down foes\n");
+	gameLocal.Printf("Dark Matter Gun: Will kill almost anything it hits, but takes a long time to\nrecharge\n");
+
+	gameLocal.Printf("Power Ups:\n");
+	gameLocal.Printf("One Shot: lasts for one shot, but will kill anything it hits\n");
+	gameLocal.Printf("Super Star: Makes you invincible, move faster, shoot faster, and hit harder\nfor 10 seconds\n");
+	gameLocal.Printf("Health Boost:Doubles your max health until you drop back down to 100\n");
+	gameLocal.Printf("Metal: slows you down, but triples your max armor\n");
+	gameLocal.Printf("Endurance: allows you to live one hit on 1 HP\n");
+}
+
+/*
+==================
 Cmd_God_f
 
 Sets client to godmode
@@ -1203,6 +1230,67 @@ void Cmd_Spawn_f( const idCmdArgs &args ) {
 	}
 // RAVEN END
 #endif // !_MPBETA
+}
+
+/*
+==================
+Cmd_Talk_f
+
+Talk to an NPC
+==================
+*/
+void Cmd_Talk_f(const idCmdArgs& args) {
+	gameLocal.Printf("Morris:\n");
+	gameLocal.Printf("> Corporal Kane! You're not dead!\n");
+	gameLocal.Printf("> There's a massive Strogg leader up ahead, and Voss wants you to kill it.\n");
+	gameLocal.Printf("> I've got strong weapons and a special upgrade for your blaster, but I\ncan't give you both.\n");
+	gameLocal.Printf("> If I did, I wouldn't stand a chance against the enemy.\n");
+	gameLocal.Printf("> Which one do you want?\n");
+	gameLocal.Printf("\nNote to player: enter 'choose 1' for the weapons and 'choose 2' for the\nupgrade.\n");
+}
+
+/*
+==================
+Cmd_Choose_f
+
+Continue the conversation
+==================
+*/
+void Cmd_Choose_f(const idCmdArgs& args) {
+	idPlayer* player;
+
+	gameLocal.Printf("Morris:\n");
+
+	if (idStr::Icmp(args.Argv(1), "1") == 0) {
+		gameLocal.Printf("> The weapons? Great choice! Here you go.\n");
+		player = gameLocal.GetLocalPlayer();
+		GiveStuffToPlayer(player, "all", "weapons");
+	}
+	else if (idStr::Icmp(args.Argv(1), "2") == 0) {
+		gameLocal.Printf("> The upgrade? Fantastic pick! Give me your blaster for one moment...\n");
+		gameLocal.Printf("> There! All upgraded! It's only good for one shot, so use it wisely.\n");
+		player = gameLocal.GetLocalPlayer();
+		GiveStuffToPlayer(player, "oneshot", "");
+	}
+	else {
+		gameLocal.Printf("> Very funny, Kane. Hurry up and choose something, before that monster\nkills us all!\n");
+		return;
+	}
+
+	gameLocal.Printf("> Good luck out there, Kane! You've got this!\n");
+	
+	float yaw;
+	idVec3 org;
+	idDict dict;
+
+	yaw = player->viewAngles.yaw;
+	dict.Set("classname", "monster_bossbuddy");
+	dict.Set("angle", va("%f", yaw));
+	org = player->GetPhysics()->GetOrigin() + idAngles(0, yaw, 0).ToForward() * 80 + idVec3(0, 0, 1);
+	dict.Set("origin", org.ToString());
+	idEntity* newEnt = NULL;
+	gameLocal.SpawnEntityDef(dict, &newEnt);
+
 }
 
 // RAVEN BEGIN
@@ -3280,6 +3368,9 @@ void idGameLocal::InitConsoleCommands( void ) {
 	cmdSystem->AddCommand( "buy",					Cmd_BuyItem_f,				CMD_FL_GAME,				"Buy an item (if in a buy zone and the game type supports it)" );
 // RITUAL END
 	cmdSystem->AddCommand("locate", Cmd_Locate_f, CMD_FL_GAME, "Print the player location to the screen");
+	cmdSystem->AddCommand("helpme", Cmd_Help_f, CMD_FL_GAME, "Prints a help menu for mod features");
+	cmdSystem->AddCommand("talk", Cmd_Talk_f, CMD_FL_GAME, "Talk with an NPC");
+	cmdSystem->AddCommand("choose", Cmd_Choose_f, CMD_FL_GAME, "Continue the conversation");
 
 }
 
